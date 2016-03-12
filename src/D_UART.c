@@ -20,15 +20,15 @@ void F_init_UART_debug()
 	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
 
 	// Configure GPIOA[2:3] as alternate function mode
-	GPIOA->MODER &= ~(0x3 << 0);
-	GPIOA->MODER |= 0x02 << 0;
-	GPIOA->MODER &= ~(0x3 << 2);
-	GPIOA->MODER |= 0x02 << 2;
+	GPIOA->MODER &= ~(0x3 << 4);
+	GPIOA->MODER |= 0x02 << 4;
+	GPIOA->MODER &= ~(0x3 << 6);
+	GPIOA->MODER |= 0x02 << 6;
 
-	GPIOA->AFR[0] &= ~(0x0F << 0);
-	GPIOA->AFR[0] |= (7 << 0);
-	GPIOA->AFR[0] &= ~(0x0F << 4);
-	GPIOA->AFR[0] |= (7 << 4);
+	GPIOA->AFR[0] &= ~(0x0F << 8);
+	GPIOA->AFR[0] |= (7 << 8);
+	GPIOA->AFR[0] &= ~(0x0F << 12);
+	GPIOA->AFR[0] |= (7 << 12);
 
 
 	// SWAP TX/RX pins if necessary
