@@ -10,6 +10,7 @@
 
 #include "stm32f30x.h"
 
+void F_init_IO(void);
 
 #define LED_GREEN_ON()		GPIOB->ODR |= 4;
 #define LED_GREEN_OFF()		GPIOB->ODR &= ~4;
