@@ -17,6 +17,7 @@
 
 int main()
 {
+	volatile uint32_t i = 0;
 	// Init IOs
 	F_init_IO();
 
@@ -28,7 +29,13 @@ int main()
 	LED_GREEN_ON()
 	LED_ORANGE_ON()
 
-	while(1);
+	while(1)
+	{
+		for(i=0;i<65000;i++);
+		for(i=0;i<65000;i++);
+		for(i=0;i<65000;i++);
+		LED_RED_TOGGLE()
+	}
 
 	return 0;
 }
