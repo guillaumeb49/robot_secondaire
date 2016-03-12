@@ -1,0 +1,5 @@
+# Exclure les fichiers et dossiers suivants:
+Debug/
+Release/
+.settings/
+
