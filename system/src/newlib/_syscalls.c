@@ -337,6 +337,8 @@ _write(int file __attribute__((unused)), char* ptr __attribute__((unused)),
 
 #include "arm/semihosting.h"
 
+#include "../src/D_UART.h"
+
 int
 _kill (int pid, int sig);
 
@@ -845,34 +847,53 @@ _swiwrite (int fh, char* ptr, int len)
 int
 _write (int fd, char* ptr, int len)
 {
-  int res;
-  struct fdent *pfd;
+//  int res;
+//  struct fdent *pfd;
+//
+//  pfd = findslot (fd);
+//  if (pfd == NULL)
+//    {
+//      errno = EBADF;
+//      return -1;
+//    }
+//
+//  res = _swiwrite (pfd->handle, ptr, len);
+//
+//  /* Clearly an error. */
+//  if (res < 0)
+//    {
+//      return -1;
+//    }
+//
+//  pfd->pos += len - res;
+//
+//  /* We wrote 0 bytes?
+//   Retrieve errno just in case. */
+//  if ((len - res) == 0)
+//    {
+//      return error (0);
+//    }
+//
+//  return (len - res);
 
-  pfd = findslot (fd);
-  if (pfd == NULL)
-    {
-      errno = EBADF;
-      return -1;
-    }
 
-  res = _swiwrite (pfd->handle, ptr, len);
-
-  /* Clearly an error. */
-  if (res < 0)
-    {
-      return -1;
-    }
-
-  pfd->pos += len - res;
-
-  /* We wrote 0 bytes?
-   Retrieve errno just in case. */
-  if ((len - res) == 0)
-    {
-      return error (0);
-    }
-
-  return (len - res);
+	int n;
+	switch (fd) {
+	    case STDOUT_FILENO: /*stdout*/
+	        for (n = 0; n < len; n++) {
+	            F_usart2_put(*ptr++);
+	        }
+	        break;
+	    case STDERR_FILENO: /* stderr */
+	        for (n = 0; n < len; n++) {
+	        	F_usart2_put(*ptr++);
+	        }
+	        break;
+	    default:
+	        errno = EBADF;
+	        return -1;
+	    }
+	    return len;
 }
 
 int
