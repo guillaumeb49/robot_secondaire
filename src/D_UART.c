@@ -57,7 +57,8 @@ void F_usart2_put(uint8_t ch)
 /**
  *	@brief Get a single character from UART 2
  */
-uint8_t F_usart2_get(void){
+uint8_t F_usart2_get(void)
+{
      while (!(USART2->ISR & USART_ISR_RXNE));
      // Read to reset RXNE flag
      return (uint8_t)USART2->RDR;
