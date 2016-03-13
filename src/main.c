@@ -29,6 +29,12 @@ int main()
 	LED_GREEN_ON()
 	LED_ORANGE_ON()
 
+	// Try the L298N
+	IN1_M1_OFF();
+	IN2_M1_ON();
+	EN_M1_ON();
+
+
 	while(1)
 	{
 		for(i=0;i<65000;i++);

@@ -20,5 +20,10 @@ void F_init_IO(void)
 	GPIOB->MODER |= 4;		// Output for pin PB1
 	GPIOB->MODER |= 0x10;	// Output for pin PB2
 
-		// High state pin PB0
+	// Initialize the pins connected to the L298N
+	GPIOB->MODER |= (1 << 20);	// Output for pin PB10
+	GPIOB->MODER |= (1 << 22);	// Output for pin PB11
+	GPIOB->MODER |= (1 << 24);	// Output for pin PB12
+
+
 }

@@ -24,5 +24,17 @@ void F_init_IO(void);
 #define LED_RED_OFF()		GPIOB->ODR &= ~1;
 #define LED_RED_TOGGLE()	GPIOB->ODR ^= 1;
 
+#define IN1_M1_ON()		GPIOB->ODR |= (1 << 10);
+#define IN1_M1_OFF()	GPIOB->ODR &= ~(1 << 10);
+#define IN1_M1_TOGGLE()	GPIOB->ODR ^= (1 << 10);
+
+#define IN2_M1_ON()		GPIOB->ODR |= (1 << 11);
+#define IN2_M1_OFF()	GPIOB->ODR &= ~(1 << 11);
+#define IN2_M1_TOGGLE()	GPIOB->ODR ^= (1 << 11);
+
+#define EN_M1_ON()		GPIOB->ODR |= (1 << 12);
+#define EN_M1_OFF()		GPIOB->ODR &= ~(1 << 12);
+#define EN_M1_TOGGLE()	GPIOB->ODR ^= (1 << 12);
+
 
 #endif /* D_IO_H_ */
