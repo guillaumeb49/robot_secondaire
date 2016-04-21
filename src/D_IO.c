@@ -13,6 +13,15 @@
  */
 void F_init_IO(void)
 {
+	// Initialize the pin connected to the ULN2003 (PA8)
+	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+
+	GPIOA->MODER &= ~(0x03 << 16);
+	GPIOA->MODER |= 0x01 << 16;	// PA8 as output
+	GPIOA->ODR &= ~(0x01 << 8);	// low state
+
+
+
 	// Initialize the LEDs (PORT B)
 	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
 
@@ -24,6 +33,12 @@ void F_init_IO(void)
 	GPIOB->MODER |= (1 << 20);	// Output for pin PB10
 	GPIOB->MODER |= (1 << 22);	// Output for pin PB11
 	GPIOB->MODER |= (1 << 24);	// Output for pin PB12
+
+	// Initialize ChA_gauche  (connected to PB4)
+	GPIOB->MODER &=~(0x03 << 8);	// Input for pin PB4
+	GPIOB->MODER &=~(0x03 << 10);	// Input for pin PB5
+
+
 
 
 }

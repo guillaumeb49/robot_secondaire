@@ -13,8 +13,11 @@
  */
 void F_init_UART_debug()
 {
+	// Select HSI as USART2 input clock (8MHz)
+	RCC->CFGR3 |= 0x03 << 16;
 	// Init clock USART 2
 	RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
+
 
 	// Init clock GPIO Port A
 	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;

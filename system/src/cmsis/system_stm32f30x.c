@@ -100,6 +100,7 @@
   */
 
 #include "stm32f30x.h"
+#include "../src/D_IO.h"
 
 /**
   * @}
@@ -300,6 +301,7 @@ void SystemCoreClockUpdate (void)
 static void SetSysClock(void)
 {
   __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
+  volatile uint32_t i =0;
 
 /******************************************************************************/
 /*            PLL (clocked by HSE) used as System clock source                */
@@ -359,10 +361,13 @@ static void SetSysClock(void)
     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)RCC_CFGR_SWS_PLL)
     {
     }
+    i = RCC->CR;
+    i = RCC->CFGR;
   }
   else
   { /* If HSE fails to start-up, the application will have wrong clock
          configuration. User can add here some code to deal with this error */
+	  LED_GREEN_ON();
   }
 }
 
