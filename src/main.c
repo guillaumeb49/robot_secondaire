@@ -31,6 +31,12 @@ uint8_t index_buffer_rx;
 // index buffer_tx
 uint8_t index_buffer_tx;
 
+// Flag nouvelle reception I2C
+uint8_t nb_data_i2c;
+
+// Flag timeout I2C
+uint8_t timeout_i2c;
+
 // statut de la dernière opération
 E_status status_operation;
 
@@ -55,6 +61,10 @@ int main()
 	volatile uint32_t i = 0;
 	volatile uint32_t j = 0;
 	uint8_t retour = 0;
+	uint8_t nb_data_timeout_i2c = 0;
+	uint8_t timer_10ms_timeout = 0;
+
+
 	// Init IOs
 	F_init_IO();
 
@@ -100,18 +110,27 @@ int main()
 		}
 		LED_ORANGE_OFF();
 		for(i=0;i<10;i++)
-				{
-					for(j=0;j<65000; j++);
-				}
+		{
+			for(j=0;j<65000; j++);
+		}
 		//F_generer_trig(TRIG_AVANT);
 
+		// Traiter reception I2C
+		if(nb_data_timeout_i2c == nb_data_i2c)
+		{
+			timer_10ms_timeout = timer_10ms;
+		}
 
-		// Traiter recption I2C
-		// Si timeout
+		if((timer_10ms-timer_10ms_timeout > 0) && (nb_data_i2c != 0))
+		{
+			// Timeout sur l'I2C
+			// Traiter la trame recu
+
 			// Lire buffer reception
 			// Indiquer status pending
 			status_operation = E_STATUS_PENDING;
 			// retour = Executer F_ExecuteCommande(buffer_i2c_receive)
+			// Baisser flag nouvelle donnees
 			if(retour == 0)
 			{
 				status_operation = E_STATUS_OK;
@@ -121,30 +140,26 @@ int main()
 				status_operation = E_STATUS_ERROR;
 			}
 
+			/*** Debut Section critique */
+			NVIC_DisableIRQ(I2C2_EV_IRQn);
+			nb_data_i2c 	= 0;
+			index_buffer_rx = 0;
+			index_buffer_tx	= 0;
+			nb_data_timeout_i2c = 0;
 
+			/*** Fin section critique */
+			NVIC_EnableIRQ(I2C2_EV_IRQn);
 
+		}
 
-			// Si temps de realiser la Funny Action
-			if(timer_1s == 92)
-			{
-				// Ouvrir parasol
-			}
+		// Si temps de realiser la Funny Action
+		if(timer_1s == 92)
+		{
+			// Ouvrir parasol
+		}
 	}
 
 	return 0;
 }
-
-
-
-
-//
-
-
-// Free running timer
-void F_timer_TM2(void)
-{
-
-}
-
 
 // ----------------------------------------------------------------------------

@@ -39,5 +39,10 @@ extern uint8_t timer_100ms;
 // Timer 1s
 extern uint16_t timer_1s;
 
+// Flag nouvelle reception I2C
+extern uint8_t nb_data_i2c;
+
+// Flag timeout I2C
+extern uint8_t timeout_i2c;
 
 #endif /* COMMON_H_ */

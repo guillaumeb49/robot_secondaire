@@ -19,11 +19,13 @@ void I2C2_EV_IRQHandler(void)
 	// Si adresse match
 	if(I2C2->ISR & I2C_ISR_ADDR)
 	{
-
+		// Lever flag nouvelles donnees (donc demarrage du timeout)
+		nb_data_i2c  = 0;
 	}
 	// Si buffer de reception peut etre lu
 	else if(I2C2->ISR & I2C_ISR_RXNE)
 	{
+		nb_data_i2c++;
 		// Lire buffer
 	}
 }
