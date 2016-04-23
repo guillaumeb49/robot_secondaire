@@ -123,8 +123,9 @@ void F_transmit_to_slave(uint8_t rw_direction, uint8_t nb_data)
 	I2C2->CR2 |= I2C_CR2_START;
 
 	// Wait for ACK from the slave (ACK after START + ADDRESS received)
+	while(!(I2C2->ISR & I2C_ISR_TXIS));
 
 	// Write all the bytes to send to TXDR
-
+	I2C2->TXDR = 0x55;
 }
 

@@ -17,6 +17,8 @@
 #include "D_I2C.h"
 #include "L_capteur_ultrason.h"
 
+#include "D_Timer.h"
+
 #include "common.h"
 
 // Buffer de reception I2C
@@ -56,6 +58,36 @@ uint8_t timer_100ms;
 uint16_t timer_1s;
 
 
+
+/* Liste des points */
+S_point liste_points[] = {{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0}
+};
+
+
+
+// Executer la commande contenu dans le buffer
+void F_ExecuteCommande(uint8_t *buffer, uint8_t nb_data);
+
+
+
+
+
+
 int main()
 {
 	volatile uint32_t i = 0;
@@ -63,6 +95,8 @@ int main()
 	uint8_t retour = 0;
 	uint8_t nb_data_timeout_i2c = 0;
 	uint8_t timer_10ms_timeout = 0;
+
+	volatile uint16_t test = 0;
 
 
 	// Init IOs
@@ -75,7 +109,7 @@ int main()
 	F_init_I2C();
 
 	//F_init_capteur_ultrasons();
-
+	F_Init_Timer();
 
 	printf("Hello World\r\n");
 
@@ -116,7 +150,7 @@ int main()
 		//F_generer_trig(TRIG_AVANT);
 
 		// Traiter reception I2C
-		if(nb_data_timeout_i2c == nb_data_i2c)
+		/*if(nb_data_timeout_i2c == nb_data_i2c)
 		{
 			timer_10ms_timeout = timer_10ms;
 		}
@@ -129,8 +163,9 @@ int main()
 			// Lire buffer reception
 			// Indiquer status pending
 			status_operation = E_STATUS_PENDING;
-			// retour = Executer F_ExecuteCommande(buffer_i2c_receive)
-			// Baisser flag nouvelle donnees
+
+			//retour = F_ExecuteCommande(buffer_i2c_receive, index_buffer_rx);
+
 			if(retour == 0)
 			{
 				status_operation = E_STATUS_OK;
@@ -139,27 +174,64 @@ int main()
 			{
 				status_operation = E_STATUS_ERROR;
 			}
-
+*/
 			/*** Debut Section critique */
-			NVIC_DisableIRQ(I2C2_EV_IRQn);
+		/*	NVIC_DisableIRQ(I2C2_EV_IRQn);
 			nb_data_i2c 	= 0;
 			index_buffer_rx = 0;
 			index_buffer_tx	= 0;
 			nb_data_timeout_i2c = 0;
 
 			/*** Fin section critique */
-			NVIC_EnableIRQ(I2C2_EV_IRQn);
+/*			NVIC_EnableIRQ(I2C2_EV_IRQn);
 
-		}
+		}*/
 
 		// Si temps de realiser la Funny Action
-		if(timer_1s == 92)
+		if(timer_1s >= 90)
 		{
 			// Ouvrir parasol
+			LED_GREEN_ON();
 		}
 	}
 
 	return 0;
 }
+
+
+/**
+ *
+ */
+void F_ExecuteCommande(uint8_t *buffer, uint8_t nb_data)
+{
+	// Vérifier commande
+	switch(buffer[0])
+	{
+	case 1:	// Ouvrir le parasol
+			if((buffer[1] == 0) && (buffer[2] == 0) && (buffer[3] == 0))
+			{
+				// Ouvrir le parasol
+
+			}
+		break;
+
+	case 2:	// Faire tourner moteur DC (poissons)
+			// Le parametre 1 est le moteur a commande (Droit ou gauche)
+			// Le parametre 2 defini la montee ou la descente du bras
+			// Si nombre de donnee est different de 0
+				// definir vitesse
+			// Sinon vitesse par defaut
+		break;
+
+	case 3:	// Envoyer la derniere mesure de distance(avant ou arriere)
+		break;
+
+	case 4:	// Controler servomoteur
+		break;
+	}
+
+}
+
+
 
 // ----------------------------------------------------------------------------

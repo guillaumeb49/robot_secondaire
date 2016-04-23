@@ -10,4 +10,6 @@
 
 #include "common.h"
 
+void F_Init_Timer(void);
+
 #endif /* D_TIMER_H_ */

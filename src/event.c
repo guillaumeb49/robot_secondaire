@@ -11,6 +11,7 @@
 
 // Interruptions
 
+
 /**
  *
  */
@@ -21,6 +22,11 @@ void I2C2_EV_IRQHandler(void)
 	{
 		// Lever flag nouvelles donnees (donc demarrage du timeout)
 		nb_data_i2c  = 0;
+
+
+		//Si lecture
+
+		// Traiter lecture
 	}
 	// Si buffer de reception peut etre lu
 	else if(I2C2->ISR & I2C_ISR_RXNE)
@@ -31,26 +37,22 @@ void I2C2_EV_IRQHandler(void)
 }
 
 /**
- * @brief TIM2 : Timer 100us / 1 ms / 10 ms / 100 ms / 1s
+ * @brief TIM2 : Timer  1 ms / 10 ms / 100 ms / 1s
  */
 void TIM2_IRQHandler(void)
 {
 	// Si overflow
 	if(TIM2->SR & TIM_SR_UIF)
 	{
-		timer_100us++;
-		// Incrementer timer 100 us
-		if(timer_100us == 10)
-		{
-			timer_100us = 0;
-			timer_1ms++;
-		}
+		TIM2->SR &= ~TIM_SR_UIF;
+		timer_1ms++;
 
 		// Incrementer timer 1 ms
 		if(timer_1ms == 10)
 		{
 			timer_1ms = 0;
 			timer_10ms++;
+
 		}
 
 		// Incrementer timer 10 ms
@@ -64,8 +66,9 @@ void TIM2_IRQHandler(void)
 		{
 			timer_100ms = 0;
 			timer_1s++;
+			//LED_RED_TOGGLE();
+			LED_RED_TOGGLE();
 		}
 	}
-
 }
 

@@ -14,7 +14,7 @@
 // SLAVE  : 1
 #define I2C_MODE 0
 
-#define SLAVE_ADDRESS 2
+#define SLAVE_ADDRESS 4
 
 
 void F_init_I2C(void);

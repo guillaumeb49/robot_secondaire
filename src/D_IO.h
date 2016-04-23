@@ -36,5 +36,8 @@ void F_init_IO(void);
 #define EN_M1_OFF()		GPIOB->ODR &= ~(1 << 12);
 #define EN_M1_TOGGLE()	GPIOB->ODR ^= (1 << 12);
 
+/** Electro-aimant */
+#define AIMANT_ON		GPIOA->ODR |= (0x01 << 8);
+#define AIMANT_OFF		GPIOA->ODR &= ~(0x01 << 8);
 
 #endif /* D_IO_H_ */

@@ -8,6 +8,6 @@
 #ifndef EVENT_H_
 #define EVENT_H_
 
-void TIM2_IRQHandler(void);
+//void TIM2_IRQHandler(void);
 
 #endif /* EVENT_H_ */

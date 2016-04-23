@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include "stm32f30x.h"
 #include "event.h"
-
+#include "D_IO.h"
 
 /**
  * Statut de la derniere operation executee
@@ -22,6 +22,15 @@ typedef enum{
 	E_STATUS_OK = 1,
 	E_STATUS_ERROR = 2
 }E_status;
+
+/*
+ * Definition d'un point
+ */
+typedef struct{
+	uint16_t x;
+	uint16_t y;
+	uint8_t theta;
+}S_point;
 
 
 // Timer 100 us
