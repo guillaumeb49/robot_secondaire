@@ -17,6 +17,8 @@
 #include "D_I2C.h"
 #include "L_capteur_ultrason.h"
 
+#include "A_servo_moteur.h"
+
 #include "D_Timer.h"
 
 #include "common.h"
@@ -98,6 +100,8 @@ int main()
 
 	volatile uint16_t test = 0;
 
+	E_SERVO_POSITION pos = SERVO_0deg;
+
 
 	// Init IOs
 	F_init_IO();
@@ -106,7 +110,7 @@ int main()
 	// Init UART debug (2)
 	F_init_UART_debug();
 
-	F_init_I2C();
+	//F_init_I2C();
 
 	//F_init_capteur_ultrasons();
 	F_Init_Timer();
@@ -130,69 +134,94 @@ int main()
 
 	while(1)
 	{
-		F_transmit_to_slave(0, 2);
-		for(i=0;i<10;i++)
-		{
-			for(j=0;j<65000; j++);
-		}
 
-		LED_ORANGE_ON();
-		F_soft_reset_I2C();
-		for(i=0;i<10;i++)
-		{
-			for(j=0;j<65000; j++);
-		}
-		LED_ORANGE_OFF();
-		for(i=0;i<10;i++)
-		{
-			for(j=0;j<65000; j++);
-		}
-		//F_generer_trig(TRIG_AVANT);
-
-		// Traiter reception I2C
-		/*if(nb_data_timeout_i2c == nb_data_i2c)
-		{
-			timer_10ms_timeout = timer_10ms;
-		}
-
-		if((timer_10ms-timer_10ms_timeout > 0) && (nb_data_i2c != 0))
-		{
-			// Timeout sur l'I2C
-			// Traiter la trame recu
-
-			// Lire buffer reception
-			// Indiquer status pending
-			status_operation = E_STATUS_PENDING;
-
-			//retour = F_ExecuteCommande(buffer_i2c_receive, index_buffer_rx);
-
-			if(retour == 0)
-			{
-				status_operation = E_STATUS_OK;
-			}
-			else
-			{
-				status_operation = E_STATUS_ERROR;
-			}
-*/
-			/*** Debut Section critique */
-		/*	NVIC_DisableIRQ(I2C2_EV_IRQn);
-			nb_data_i2c 	= 0;
-			index_buffer_rx = 0;
-			index_buffer_tx	= 0;
-			nb_data_timeout_i2c = 0;
-
-			/*** Fin section critique */
-/*			NVIC_EnableIRQ(I2C2_EV_IRQn);
-
-		}*/
-
+		i = TIM17->CNT;
+		j = TIM17->CCR1;
+//		F_transmit_to_slave(0, 2);
+//		for(i=0;i<10;i++)
+//		{
+//			for(j=0;j<65000; j++);
+//		}
+//
+//		LED_ORANGE_ON();
+//		F_soft_reset_I2C();
+//		for(i=0;i<10;i++)
+//		{
+//			for(j=0;j<65000; j++);
+//		}
+//		LED_ORANGE_OFF();
+//		for(i=0;i<10;i++)
+//		{
+//			for(j=0;j<65000; j++);
+//		}
+//		//F_generer_trig(TRIG_AVANT);
+//
+//		// Traiter reception I2C
+//		/*if(nb_data_timeout_i2c == nb_data_i2c)
+//		{
+//			timer_10ms_timeout = timer_10ms;
+//		}
+//
+//		if((timer_10ms-timer_10ms_timeout > 0) && (nb_data_i2c != 0))
+//		{
+//			// Timeout sur l'I2C
+//			// Traiter la trame recu
+//
+//			// Lire buffer reception
+//			// Indiquer status pending
+//			status_operation = E_STATUS_PENDING;
+//
+//			//retour = F_ExecuteCommande(buffer_i2c_receive, index_buffer_rx);
+//
+//			if(retour == 0)
+//			{
+//				status_operation = E_STATUS_OK;
+//			}
+//			else
+//			{
+//				status_operation = E_STATUS_ERROR;
+//			}
+//*/
+//			/*** Debut Section critique */
+//		/*	NVIC_DisableIRQ(I2C2_EV_IRQn);
+//			nb_data_i2c 	= 0;
+//			index_buffer_rx = 0;
+//			index_buffer_tx	= 0;
+//			nb_data_timeout_i2c = 0;
+//
+//			/*** Fin section critique */
+///*			NVIC_EnableIRQ(I2C2_EV_IRQn);
+//
+//		}*/
+//
 		// Si temps de realiser la Funny Action
 		if(timer_1s >= 90)
 		{
 			// Ouvrir parasol
 			LED_GREEN_ON();
+
 		}
+
+		if((timer_1s % 4) == 0)
+		{
+			LED_GREEN_TOGGLE();
+			switch(pos)
+			{
+			case SERVO_0deg:
+					pos = SERVO_90deg;
+				break;
+			case SERVO_90deg:
+				pos = SERVO_180deg;
+				break;
+			case SERVO_180deg:
+				pos = SERVO_0deg;
+				break;
+			default :
+				pos = SERVO_0deg;
+			}
+			F_move_servo3(pos);
+		}
+
 	}
 
 	return 0;
