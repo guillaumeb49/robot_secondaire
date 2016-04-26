@@ -135,8 +135,6 @@ int main()
 	while(1)
 	{
 
-		i = TIM17->CNT;
-		j = TIM17->CCR1;
 //		F_transmit_to_slave(0, 2);
 //		for(i=0;i<10;i++)
 //		{
