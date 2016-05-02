@@ -63,16 +63,16 @@ uint16_t timer_1s;
 
 /* Liste des points */
 S_point liste_points[] = {{.x = 0, .y = 0, .theta = 0},
-							{.x = 0, .y = 0, .theta = 0},
-							{.x = 0, .y = 0, .theta = 0},
-							{.x = 0, .y = 0, .theta = 0},
-							{.x = 0, .y = 0, .theta = 0},
-							{.x = 0, .y = 0, .theta = 0},
-							{.x = 0, .y = 0, .theta = 0},
-							{.x = 0, .y = 0, .theta = 0},
-							{.x = 0, .y = 0, .theta = 0},
-							{.x = 0, .y = 0, .theta = 0},
-							{.x = 0, .y = 0, .theta = 0},
+							{.x = 650, .y = 900, .theta = 0},
+							{.x = 700, .y = 1000, .theta = 0},
+							{.x = 1100, .y = 1100, .theta = 0},
+							{.x = 1250, .y = 950, .theta = 0},
+							{.x = 1300, .y = 1300, .theta = 0},
+							{.x = 1500, .y = 1550, .theta = 0},
+							{.x = 1500, .y = 1850, .theta = 0},
+							{.x = 1200, .y = 1650, .theta = 0},
+							{.x = 900, .y = 1450, .theta = 0},
+							{.x = 700, .y = 1550, .theta = 0},
 							{.x = 0, .y = 0, .theta = 0},
 							{.x = 0, .y = 0, .theta = 0},
 							{.x = 0, .y = 0, .theta = 0},
@@ -86,7 +86,7 @@ S_point liste_points[] = {{.x = 0, .y = 0, .theta = 0},
 void F_ExecuteCommande(uint8_t *buffer, uint8_t nb_data);
 
 
-
+uint8_t F_Envoyer_commande(S_commande cmd);
 
 
 
@@ -97,8 +97,18 @@ int main()
 	uint8_t retour = 0;
 	uint8_t nb_data_timeout_i2c = 0;
 	uint8_t timer_10ms_timeout = 0;
-
+	uint8_t data[5] = {0,1,2,3,4};
 	volatile uint16_t test = 0;
+
+
+	S_commande cmd_test;
+	cmd_test.commande = CMD_GOTO;
+	cmd_test.param1 = 1000;
+	cmd_test.param2 = 500;
+	cmd_test.param3 = THETA_90;
+
+
+
 
 	E_SERVO_POSITION pos = SERVO_0deg;
 
@@ -110,14 +120,12 @@ int main()
 	// Init UART debug (2)
 	F_init_UART_debug();
 
-	//F_init_I2C();
+	F_init_I2C();
 
 	//F_init_capteur_ultrasons();
 	F_Init_Timer();
 
 	printf("Hello World\r\n");
-
-
 
 
 	LED_ORANGE_ON();
@@ -130,8 +138,8 @@ int main()
 	i = 0;
 
 	// Attendre que la prise jack soit retiree
-
-
+	F_Envoyer_commande(cmd_test);
+	//F_transmit_to_slave(0, 5, data);
 	while(1)
 	{
 
@@ -219,7 +227,31 @@ int main()
 			}
 			F_move_servo3(pos);
 		}
+	/*	EN_M1_ON();
+		IN1_M1_ON();
+		IN2_M1_OFF();
+		while(GPIOA->IDR & GPIO_IDR_1);
+		//EN_M1_OFF();
+		IN1_M1_OFF();
+		IN2_M1_OFF();
+		LED_ORANGE_ON();
+		while(!(GPIOA->IDR & GPIO_IDR_1));
+*/
+		//EN_M1_ON();
+	/*	IN1_M1_OFF();
+		IN2_M1_ON();
+		//EN_M1_ON();
+		//IN1_M1_OFF();
+		//IN2_M1_ON();
+		while(GPIOA->IDR & GPIO_IDR_0);
+		//EN_M1_OFF();
+		IN1_M1_ON();
+		IN2_M1_ON();
+		LED_ORANGE_ON();
+		while(!(GPIOA->IDR & GPIO_IDR_0));
 
+*/
+		LED_ORANGE_OFF();
 	}
 
 	return 0;
@@ -229,7 +261,7 @@ int main()
 /**
  *
  */
-void F_ExecuteCommande(uint8_t *buffer, uint8_t nb_data)
+/*void F_ExecuteCommande(uint8_t *buffer, uint8_t nb_data)
 {
 	// Vérifier commande
 	switch(buffer[0])
@@ -256,7 +288,28 @@ void F_ExecuteCommande(uint8_t *buffer, uint8_t nb_data)
 	case 4:	// Controler servomoteur
 		break;
 	}
+}*/
 
+
+/**
+ * Envoi d'une commande sur le bus I2C
+ */
+uint8_t F_Envoyer_commande(S_commande cmd)
+{
+	uint8_t retour = 1;
+	uint8_t tab_a_envoyer[10] = {0};
+
+	tab_a_envoyer[0] = cmd.commande;
+	tab_a_envoyer[1] = (uint8_t)((cmd.param1 >> 8) & 0x00FF);
+	tab_a_envoyer[2] = (uint8_t)(cmd.param1 & 0x00FF);
+	tab_a_envoyer[3] = (uint8_t)((cmd.param2 >> 8) & 0x00FF);
+	tab_a_envoyer[4] = (uint8_t)(cmd.param2 & 0x00FF);
+	tab_a_envoyer[5] = (cmd.param3);
+
+
+	retour = F_transmit_to_slave(0, LENGTH_CMD, tab_a_envoyer);
+
+	return retour;
 }
 
 

@@ -13,6 +13,18 @@
 #include "event.h"
 #include "D_IO.h"
 
+#define LENGTH_CMD 6
+
+#define THETA_0		0
+#define THETA_45	32
+#define THETA_90	64
+#define THETA_135	96
+#define THETA_180	128
+#define THETA_225	159
+#define THETA_270	0
+#define THETA_315	0
+#define THETA_360	0
+
 /**
  * Statut de la derniere operation executee
  */
@@ -32,6 +44,23 @@ typedef struct{
 	uint8_t theta;
 }S_point;
 
+typedef enum{
+	CMD_GOTO = 1,
+	CMD_RECULER = 2,
+	CMD_START_STOP = 3
+}E_CMD;
+
+
+/*
+ * Definition d'un point
+ */
+typedef struct{
+
+	E_CMD commande;
+	uint16_t param1;
+	uint16_t param2;
+	uint8_t param3;
+}S_commande;
 
 // Timer 100 us
 extern uint8_t timer_100us;

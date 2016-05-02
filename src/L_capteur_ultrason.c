@@ -16,7 +16,6 @@ void F_init_capteur_ultrasons(void)
 	// Enable Timer 4
 	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
 
-
 	// Sorties Trig PB4 et PB5 : Open-drain No pull-up No pull down
 	GPIOB->OTYPER 	|= (1 << 4) | (1 << 5);			// Open Drain
 	GPIOB->OSPEEDR 	|= (0x3 << 8) | (0x3 << 10);	// High speed
@@ -87,7 +86,6 @@ void F_init_capteur_ultrasons(void)
 
 	TIM4->CR1 |= TIM_CR1_CEN;
 
-
 }
 
 
@@ -132,9 +130,11 @@ void F_generer_trig(E_TRIG trigger)
 	t2 = TIM4->CCR1;
 	longueur = t2 - t1;
 	TIM4->CNT = 0;
-	printf("Longueur : %d cm "
-			"\r\n", (int)(longueur/58));
 
+	longueur = longueur /58;
+	/*printf("Longueur : %d cm "
+			"\r\n", (int)(longueur/58));
+*/
 
 
 

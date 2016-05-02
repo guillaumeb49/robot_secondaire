@@ -46,6 +46,7 @@ void TIM2_IRQHandler(void)
 	{
 		TIM2->SR &= ~TIM_SR_UIF;
 		timer_1ms++;
+		EN_M1_TOGGLE();
 
 		// Incrementer timer 1 ms
 		if(timer_1ms == 10)

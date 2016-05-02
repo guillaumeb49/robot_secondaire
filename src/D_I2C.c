@@ -95,8 +95,9 @@ void F_soft_reset_I2C(void)
  *
  * Master Mode
  */
-void F_transmit_to_slave(uint8_t rw_direction, uint8_t nb_data)
+uint8_t F_transmit_to_slave(uint8_t rw_direction, uint8_t nb_data, uint8_t *data)
 {
+	int i = 0;
 	volatile uint32_t test = 0;
 	I2C2->CR2 |= I2C_CR2_AUTOEND;	// Automatic STOP mode (Send a STOP when all bytes have been transmitted)
 
@@ -125,7 +126,11 @@ void F_transmit_to_slave(uint8_t rw_direction, uint8_t nb_data)
 	// Wait for ACK from the slave (ACK after START + ADDRESS received)
 	while(!(I2C2->ISR & I2C_ISR_TXIS));
 
-	// Write all the bytes to send to TXDR
-	I2C2->TXDR = 0x55;
+	for(i=0;i< nb_data; i++)
+	{
+		I2C2->TXDR = data[i];
+		while(!(I2C2->ISR & I2C_ISR_TXIS));	// attendre ACK ou NACK
+	}
+	return 0;
 }
 
