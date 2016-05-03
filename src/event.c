@@ -46,7 +46,6 @@ void TIM2_IRQHandler(void)
 	{
 		TIM2->SR &= ~TIM_SR_UIF;
 		timer_1ms++;
-		EN_M1_TOGGLE();
 
 		// Incrementer timer 1 ms
 		if(timer_1ms == 10)
@@ -63,12 +62,18 @@ void TIM2_IRQHandler(void)
 			timer_100ms++;
 		}
 
+		// Compter toutes les 200 ms pour activer capteur ultrason
+		if((timer_100ms % 2) != 0)
+		{
+			recuperer_ultrason = 1;
+		}
+
 		if(timer_100ms == 10)
 		{
 			timer_100ms = 0;
 			timer_1s++;
-			//LED_RED_TOGGLE();
-			LED_RED_TOGGLE();
+			// Faire clignoter LED Orange toutes les secondes
+			LED_ORANGE_TOGGLE();
 		}
 	}
 }

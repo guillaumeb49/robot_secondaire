@@ -18,6 +18,8 @@ void F_move_servo1(E_SERVO_POSITION pos)
 		break;
 	case SERVO_90deg:
 		break;
+	case SERVO_120deg:
+		break;
 	case SERVO_180deg:
 		break;
 	}
@@ -31,6 +33,8 @@ void F_move_servo2(E_SERVO_POSITION pos)
 			break;
 		case SERVO_90deg:
 			break;
+		case SERVO_120deg:
+				break;
 		case SERVO_180deg:
 			break;
 		}

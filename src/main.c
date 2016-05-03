@@ -59,7 +59,8 @@ uint8_t timer_100ms;
 // Timer 1s
 uint16_t timer_1s;
 
-
+// Flag capture ultrason
+uint8_t recuperer_ultrason;
 
 /* Liste des points */
 S_point liste_points[] = {{.x = 0, .y = 0, .theta = 0},
@@ -101,16 +102,22 @@ int main()
 	volatile uint16_t test = 0;
 
 
-	S_commande cmd_test;
-	cmd_test.commande = CMD_GOTO;
+	uint16_t distance_obstacle = 0;
+
+
+	recuperer_ultrason = 0;
+
+	S_commande cmd_en_cours;
+	/*cmd_test.commande = CMD_GOTO;
 	cmd_test.param1 = 1000;
 	cmd_test.param2 = 500;
 	cmd_test.param3 = THETA_90;
+*/
 
 
 
-
-	E_SERVO_POSITION pos = SERVO_0deg;
+	E_SERVO_POSITION pos 	= SERVO_0deg;
+	E_TRIG trigger_ultrason = TRIG_DROIT;
 
 
 	// Init IOs
@@ -133,15 +140,62 @@ int main()
 	LED_RED_OFF();
 
 
-
+	// Placer le servo dans ca position initiale
 	F_move_servo3(pos);
-	i = 0;
 
 	// Attendre que la prise jack soit retiree
+	// While(!(GPIOA->IDR & GPIOA_IDR7));
 //	F_Envoyer_commande(cmd_test);
 	//F_transmit_to_slave(0, 5, data);
 	while(1)
 	{
+		// Tester si un obstacle est present
+		if(recuperer_ultrason == 1)
+		{
+			recuperer_ultrason = 0;	// reset flag
+			LED_GREEN_OFF();
+			distance_obstacle = F_generer_trig(trigger_ultrason);
+
+			// Envoyer un signal a la carte moteur pour s'arreter
+			if((distance_obstacle <= 20) && (distance_obstacle != -1))
+			{
+				LED_GREEN_ON();
+				// allumer LED Rouge
+				cmd_en_cours.commande = CMD_START_STOP;
+				cmd_en_cours.param1 = 0;
+				cmd_en_cours.param2 = 0;
+				cmd_en_cours.param3 = 0;
+				// F_Envoyer_commande(cmd_test);
+
+			}
+
+			if(trigger_ultrason == TRIG_DROIT)
+			{
+				trigger_ultrason = TRIG_GAUCHE;
+			}
+			else
+			{
+				trigger_ultrason = TRIG_DROIT;
+			}
+
+		}
+
+
+		// Si temps de realiser la Funny Action
+		if(timer_1s >= 90)
+		{
+			LED_GREEN_ON();
+
+			// Ouvrir parasol
+			pos = SERVO_90deg;
+			F_move_servo3(pos);
+		}
+
+
+
+
+
+
 
 //		F_transmit_to_slave(0, 2);
 //		for(i=0;i<10;i++)
@@ -200,13 +254,7 @@ int main()
 //
 //		}*/
 //
-		// Si temps de realiser la Funny Action
-		if(timer_1s >= 90)
-		{
-			// Ouvrir parasol
-			LED_GREEN_ON();
 
-		}
 
 	/*	if((timer_1s ) == 5)
 		{
