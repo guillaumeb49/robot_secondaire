@@ -14,7 +14,7 @@ void F_init_IO(void);
 
 #define LED_GREEN_ON()		GPIOB->ODR |= 4;
 #define LED_GREEN_OFF()		GPIOB->ODR &= ~4;
-#define LED_GREEN_TOGGLE()	GPIOB->ODR = 4;
+#define LED_GREEN_TOGGLE()	GPIOB->ODR ^= 4;
 
 #define LED_ORANGE_ON()		GPIOB->ODR |= 2;
 #define LED_ORANGE_OFF()	GPIOB->ODR &= ~2;

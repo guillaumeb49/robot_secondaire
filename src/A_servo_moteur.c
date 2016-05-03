@@ -48,6 +48,10 @@ void F_move_servo3(E_SERVO_POSITION pos)
 			TIM17->CCR1 = 110;
 			break;
 
+		case SERVO_120deg:
+			TIM17->CCR1 = 130;
+			break;
+
 		case SERVO_180deg:
 			TIM17->CCR1 = 180;
 			break;

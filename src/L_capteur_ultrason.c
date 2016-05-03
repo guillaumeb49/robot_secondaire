@@ -131,11 +131,8 @@ void F_generer_trig(E_TRIG trigger)
 	longueur = t2 - t1;
 	TIM4->CNT = 0;
 
-	longueur = longueur /58;
-	/*printf("Longueur : %d cm "
+	printf("Longueur : %d cm "
 			"\r\n", (int)(longueur/58));
-*/
-
 
 
 }

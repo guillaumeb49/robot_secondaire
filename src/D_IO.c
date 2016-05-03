@@ -52,6 +52,12 @@ void F_init_IO(void)
 	GPIOB->MODER &=~(0x03 << 10);	// Input for pin PB5
 
 
+	// PB 13 : Capteur arriere
+
+	GPIOB->MODER &= ~ (0x3 << 26);
+	GPIOB->PUPDR &= ~ (0x03 << 26);
+	GPIOB->PUPDR |= 0x01 << 26; 	// Pull-up
+
 
 
 

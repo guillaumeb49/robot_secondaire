@@ -122,9 +122,9 @@ int main()
 
 	F_init_I2C();
 
-	//F_init_capteur_ultrasons();
-	F_Init_Timer();
 
+	F_Init_Timer();
+	F_init_capteur_ultrasons();
 	printf("Hello World\r\n");
 
 
@@ -134,11 +134,11 @@ int main()
 
 
 
-
+	F_move_servo3(pos);
 	i = 0;
 
 	// Attendre que la prise jack soit retiree
-	F_Envoyer_commande(cmd_test);
+//	F_Envoyer_commande(cmd_test);
 	//F_transmit_to_slave(0, 5, data);
 	while(1)
 	{
@@ -160,7 +160,7 @@ int main()
 //		{
 //			for(j=0;j<65000; j++);
 //		}
-//		//F_generer_trig(TRIG_AVANT);
+		//	F_generer_trig(TRIG_AVANT);
 //
 //		// Traiter reception I2C
 //		/*if(nb_data_timeout_i2c == nb_data_i2c)
@@ -208,25 +208,13 @@ int main()
 
 		}
 
-		if((timer_1s % 4) == 0)
+	/*	if((timer_1s ) == 5)
 		{
 			LED_GREEN_TOGGLE();
-			switch(pos)
-			{
-			case SERVO_0deg:
-					pos = SERVO_90deg;
-				break;
-			case SERVO_90deg:
-				pos = SERVO_180deg;
-				break;
-			case SERVO_180deg:
-				pos = SERVO_0deg;
-				break;
-			default :
-				pos = SERVO_0deg;
-			}
+			pos = SERVO_90deg;
 			F_move_servo3(pos);
 		}
+		*/
 	/*	EN_M1_ON();
 		IN1_M1_ON();
 		IN2_M1_OFF();
@@ -251,7 +239,16 @@ int main()
 		while(!(GPIOA->IDR & GPIO_IDR_0));
 
 */
-		LED_ORANGE_OFF();
+		//LED_ORANGE_OFF();
+
+
+		// Test switch arriere
+		if(!(GPIOB->IDR & GPIO_IDR_13))
+		{
+			LED_GREEN_TOGGLE();
+		}
+
+
 	}
 
 	return 0;
