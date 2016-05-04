@@ -13,7 +13,16 @@
 #include "event.h"
 #include "D_IO.h"
 
-#define LENGTH_CMD 6
+
+#define VERSION 1
+
+
+#define LENGTH_CMD 	6
+
+/** Definition du nombre de point a envoyer */
+#define NB_POINT	2
+
+
 
 #define THETA_0		0
 #define THETA_45	32
@@ -45,11 +54,15 @@ typedef struct{
 }S_point;
 
 typedef enum{
-	CMD_GOTO = 1,
-	CMD_RECULER = 2,
-	CMD_START_STOP = 3
+	CMD_GOTO 		= 1,
+	CMD_RECULER 	= 2,
+	CMD_START_STOP 	= 3
 }E_CMD;
 
+typedef enum{
+	COULEUR_VERT 	= 1,
+	COULEUR_VIOLET 	= 2
+}E_COULEUR;
 
 /*
  * Definition d'un point
@@ -85,5 +98,9 @@ extern uint8_t nb_data_i2c;
 
 // Flag timeout I2C
 extern uint8_t timeout_i2c;
+
+// Flag Demande I2C
+extern uint8_t demande_I2C;
+
 
 #endif /* COMMON_H_ */

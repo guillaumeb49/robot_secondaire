@@ -62,6 +62,9 @@ uint16_t timer_1s;
 // Flag capture ultrason
 uint8_t recuperer_ultrason;
 
+// Flag Demande I2C
+uint8_t demande_I2C;
+
 /* Liste des points */
 S_point liste_points_violet[] = {{.x = 0, .y = 0, .theta = 0},
 							{.x = 650, .y = 900, .theta = 0},
@@ -101,70 +104,78 @@ S_point liste_points_vert[] = {{.x = 0, .y = 0, .theta = 0},
 };
 
 
-// Executer la commande contenu dans le buffer
-void F_ExecuteCommande(uint8_t *buffer, uint8_t nb_data);
-
-
 uint8_t F_Envoyer_commande(S_commande cmd);
+uint8_t F_Recevoir_donnees_I2C(uint8_t nb_data, uint8_t *donnees);
 
 
 
 int main()
 {
-	volatile uint32_t i = 0;
-	volatile uint32_t j = 0;
-	uint8_t retour = 0;
-	uint8_t nb_data_timeout_i2c = 0;
-	uint8_t timer_10ms_timeout = 0;
-	uint8_t data[5] = {0,1,2,3,4};
-	volatile uint16_t test = 0;
+	/* Variables */
+	int16_t distance_obstacle_droit	= 0;
+	int16_t distance_obstacle_gauche= 0;
+	E_TRIG trigger_ultrason 	= TRIG_DROIT;
+	recuperer_ultrason 			= 0;
+	uint8_t flag_stop			= 0;
 
+	S_point *liste_points 		= NULL;
+	S_commande cmd;
+	uint16_t index_point		= 0;
 
-	uint16_t distance_obstacle = 0;
+	E_SERVO_POSITION pos 		= SERVO_0deg;
+	E_COULEUR couleur			= COULEUR_VERT;
 
+	demande_I2C 				= 0;
+	uint8_t etat_carte_moteur 	= 0;
 
-	recuperer_ultrason = 0;
+	/*************/
 
-	S_commande cmd_en_cours;
-	/*cmd_test.commande = CMD_GOTO;
-	cmd_test.param1 = 1000;
-	cmd_test.param2 = 500;
-	cmd_test.param3 = THETA_90;
-*/
-
-
-
-	E_SERVO_POSITION pos 	= SERVO_0deg;
-	E_TRIG trigger_ultrason = TRIG_DROIT;
 
 
 	// Init IOs
 	F_init_IO();
 
+	// Initialiser les horloges
 	F_init_clocks();
+
 	// Init UART debug (2)
 	F_init_UART_debug();
 
+	// Init I2C
 	F_init_I2C();
 
-
+	// Initialiser les Timers
 	F_Init_Timer();
+
+	// Initialiser les capteurs ultrasons
 	F_init_capteur_ultrasons();
-	printf("Hello World\r\n");
 
+	// Afficher version
+	printf("Carte actionneur version v%d\r\n", VERSION);
 
-	LED_ORANGE_ON();
+	// Eteindre les LEDs
+	LED_ORANGE_OFF();
 	LED_GREEN_OFF();
 	LED_RED_OFF();
 
-
-	// Placer le servo dans ca position initiale
+	// Placer le parasol dans ca position initiale
 	F_move_servo3(pos);
 
 	// Attendre que la prise jack soit retiree
-	// While(!(GPIOA->IDR & GPIOA_IDR7));
-//	F_Envoyer_commande(cmd_test);
-	//F_transmit_to_slave(0, 5, data);
+	// While(!(GPIOB->IDR & GPIOA_IDR14));
+
+	// Recuperer la couleur du match
+	if(GPIOA->IDR & GPIO_IDR_5)
+	{
+		liste_points = &liste_points_vert[0];
+		couleur = COULEUR_VERT;
+	}
+	else
+	{
+		liste_points = &liste_points_violet[0];
+		couleur = COULEUR_VERT;
+	}
+
 	while(1)
 	{
 		// Tester si un obstacle est present
@@ -172,30 +183,47 @@ int main()
 		{
 			recuperer_ultrason = 0;	// reset flag
 			LED_GREEN_OFF();
-			distance_obstacle = F_generer_trig(trigger_ultrason);
-
-			// Envoyer un signal a la carte moteur pour s'arreter
-			if((distance_obstacle <= 20) && (distance_obstacle != -1))
-			{
-				LED_GREEN_ON();
-				// allumer LED Rouge
-				cmd_en_cours.commande = CMD_START_STOP;
-				cmd_en_cours.param1 = 0;
-				cmd_en_cours.param2 = 0;
-				cmd_en_cours.param3 = 0;
-				// F_Envoyer_commande(cmd_test);
-
-			}
-
 			if(trigger_ultrason == TRIG_DROIT)
 			{
+				distance_obstacle_droit = F_generer_trig(trigger_ultrason);
 				trigger_ultrason = TRIG_GAUCHE;
 			}
 			else
 			{
+				distance_obstacle_gauche = F_generer_trig(trigger_ultrason);
 				trigger_ultrason = TRIG_DROIT;
 			}
 
+			// Envoyer un signal a la carte moteur pour s'arreter
+			if((distance_obstacle_droit <= 20) || (distance_obstacle_gauche <= 20))
+			{
+				if(flag_stop == 1)
+				{
+					LED_GREEN_ON();
+					// allumer LED Rouge
+					cmd.commande = CMD_START_STOP;
+					cmd.param1 = 0;
+					cmd.param2 = 0;
+					cmd.param3 = 0;
+					F_Envoyer_commande(cmd);	// Arreter le robot
+
+					flag_stop = 1;
+				}
+			}
+			else
+			{
+				if(flag_stop == 1)
+				{
+					// Eteindre LED Rouge
+					LED_GREEN_OFF();
+					cmd.commande = CMD_START_STOP;
+					cmd.param1 = 1;
+					cmd.param2 = 0;
+					cmd.param3 = 0;
+					F_Envoyer_commande(cmd);	// Faire repartir le robot
+					flag_stop = 0;
+				}
+			}
 		}
 
 
@@ -210,6 +238,64 @@ int main()
 		}
 
 
+		// Demander si bien arrive au point demande
+		if(	demande_I2C == 1)
+		{
+			F_Recevoir_donnees_I2C(1, &etat_carte_moteur);
+
+			// Si le robot est a la arrive a destination
+			if(etat_carte_moteur == 1)
+			{
+				// faire l'action des poissons
+				if(couleur == COULEUR_VERT)
+				{
+					// Baisser le bras et activer l'electro-aimant
+					if(index_point == 10)
+					{
+
+					}
+					// Monter le bras
+					else if(index_point == 11)
+					{
+
+					}
+					// Descendre le bras et desactiver l'electro-aimant
+					else if(index_point == 12)
+					{
+
+						// Monter le bras a la fin
+					}
+				}
+				else
+				{
+					// Baisser le bras et activer l'electro-aimant
+					if(index_point == 10)
+					{
+
+					}
+					// Monter le bras
+					else if(index_point == 11)
+					{
+
+					}
+					// Descendre le bras et desactiver l'electro-aimant
+					else if(index_point == 12)
+					{
+
+						// Monter le bras a la fin
+					}
+
+
+				}
+				// Envoyer un nouveau point
+				cmd.commande = CMD_GOTO;
+				cmd.param1 = liste_points[index_point].x;
+				cmd.param2 = liste_points[index_point].y;
+				cmd.param3 = liste_points[index_point].theta;
+				F_Envoyer_commande(cmd);
+			}
+			demande_I2C = 0;
+		}
 
 
 
@@ -322,39 +408,6 @@ int main()
 
 
 /**
- *
- */
-/*void F_ExecuteCommande(uint8_t *buffer, uint8_t nb_data)
-{
-	// Vérifier commande
-	switch(buffer[0])
-	{
-	case 1:	// Ouvrir le parasol
-			if((buffer[1] == 0) && (buffer[2] == 0) && (buffer[3] == 0))
-			{
-				// Ouvrir le parasol
-
-			}
-		break;
-
-	case 2:	// Faire tourner moteur DC (poissons)
-			// Le parametre 1 est le moteur a commande (Droit ou gauche)
-			// Le parametre 2 defini la montee ou la descente du bras
-			// Si nombre de donnee est different de 0
-				// definir vitesse
-			// Sinon vitesse par defaut
-		break;
-
-	case 3:	// Envoyer la derniere mesure de distance(avant ou arriere)
-		break;
-
-	case 4:	// Controler servomoteur
-		break;
-	}
-}*/
-
-
-/**
  * Envoi d'une commande sur le bus I2C
  */
 uint8_t F_Envoyer_commande(S_commande cmd)
@@ -370,11 +423,21 @@ uint8_t F_Envoyer_commande(S_commande cmd)
 	tab_a_envoyer[5] = (cmd.param3);
 
 
-	retour = F_transmit_to_slave(0, LENGTH_CMD, tab_a_envoyer);
+	retour = F_transmit_to_slave(LENGTH_CMD, tab_a_envoyer);
 
 	return retour;
 }
 
 
+/**
+ * Envoi d'une commande sur le bus I2C
+ */
+uint8_t F_Recevoir_donnees_I2C(uint8_t nb_data, uint8_t *donnees)
+{
+	uint8_t retour = 1;
+	retour = F_receive_from_slave(nb_data, donnees);
+
+	return retour;
+}
 
 // ----------------------------------------------------------------------------

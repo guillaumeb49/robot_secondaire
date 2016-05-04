@@ -72,7 +72,7 @@ void F_init_capteur_ultrasons(void)
 /**
  *
  */
-uint16_t F_generer_trig(E_TRIG trigger)
+int16_t F_generer_trig(E_TRIG trigger)
 {
 	uint16_t temps = 0;
 	uint32_t longueur = 0;
@@ -105,7 +105,7 @@ uint16_t F_generer_trig(E_TRIG trigger)
 		// Si timeout
 		if(timeout == 1)
 		{
-			return -1;	// retourner une erreur
+			return 0;	// retourner une erreur
 		}
 
 		t1 = TIM4->CCR1;
@@ -127,7 +127,7 @@ uint16_t F_generer_trig(E_TRIG trigger)
 		// Si timeout
 		if(timeout == 1)
 		{
-			return -1;	// retourner une erreur
+			return 0;	// retourner une erreur
 		}
 		t2 = TIM4->CCR1;
 		longueur = (t2 - t1)/58;
@@ -152,7 +152,7 @@ uint16_t F_generer_trig(E_TRIG trigger)
 		// Si timeout
 		if(timeout == 1)
 		{
-			return -1;	// retourner une erreur
+			return 0;	// retourner une erreur
 		}
 
 		t1 = TIM4->CCR2;
@@ -173,7 +173,7 @@ uint16_t F_generer_trig(E_TRIG trigger)
 		// Si timeout
 		if(timeout == 1)
 		{
-			return -1;	// retourner une erreur
+			return 0;	// retourner une erreur
 		}
 
 		// Calcul de la longueur
@@ -185,5 +185,5 @@ uint16_t F_generer_trig(E_TRIG trigger)
 			"\r\n", (int)trigger,(int)(longueur));
 
 
-	return longueur;
+	return (int16_t)longueur;
 }

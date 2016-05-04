@@ -62,6 +62,12 @@ void TIM2_IRQHandler(void)
 			timer_100ms++;
 		}
 
+		// Compter toutes les 100 ms pour demande I2C vers carte moteur
+		if((timer_100ms % 1) != 0)
+		{
+			demande_I2C = 1;
+		}
+
 		// Compter toutes les 200 ms pour activer capteur ultrason
 		if((timer_100ms % 2) != 0)
 		{

@@ -95,42 +95,78 @@ void F_soft_reset_I2C(void)
  *
  * Master Mode
  */
-uint8_t F_transmit_to_slave(uint8_t rw_direction, uint8_t nb_data, uint8_t *data)
+uint8_t F_transmit_to_slave(uint8_t nb_data, uint8_t *data)
 {
 	int i = 0;
-	volatile uint32_t test = 0;
 	I2C2->CR2 |= I2C_CR2_AUTOEND;	// Automatic STOP mode (Send a STOP when all bytes have been transmitted)
 
 	I2C2->CR2 &= ~I2C_CR2_ADD10;
 	I2C2->CR2 &= ~I2C_CR2_SADD;
 	I2C2->CR2 |= (SLAVE_ADDRESS << 1);	// Store the slave address
 
-	test = I2C2->CR2;
-	if(rw_direction)
-	{
-		I2C2->CR2 |= I2C_CR2_RD_WRN;
-	}
-	else
-	{
-		I2C2->CR2 &= ~I2C_CR2_RD_WRN;
-	}
+	I2C2->CR2 &= ~I2C_CR2_RD_WRN;
 
 	I2C2->CR2 &= ~I2C_CR2_NBYTES;
 	I2C2->CR2 |= (nb_data << 16);
-
-	test = I2C2->CR2;
 
 	// Send start
 	I2C2->CR2 |= I2C_CR2_START;
 
 	// Wait for ACK from the slave (ACK after START + ADDRESS received)
-	while(!(I2C2->ISR & I2C_ISR_TXIS));
+	while(!(I2C2->ISR & I2C_ISR_TXIS) && !(I2C2->ISR & I2C_ISR_NACKF));
+
+	if(I2C2->ISR & I2C_ISR_NACKF)
+	{
+		I2C2->ISR &= ~ I2C_ISR_NACKF;
+		return -1; // Signaler erreur NACK
+	}
 
 	for(i=0;i< nb_data; i++)
 	{
 		I2C2->TXDR = data[i];
-		while(!(I2C2->ISR & I2C_ISR_TXIS));	// attendre ACK ou NACK
+		while(!(I2C2->ISR & I2C_ISR_TXIS)&& !(I2C2->ISR & I2C_ISR_NACKF));	// attendre ACK ou NACK
+
+		if(I2C2->ISR & I2C_ISR_NACKF)
+		{
+			I2C2->ISR &= ~ I2C_ISR_NACKF;
+			return -1; // Signaler erreur NACK
+		}
 	}
 	return 0;
 }
 
+uint8_t F_receive_from_slave(uint8_t nb_data, uint8_t *data)
+{
+	int i = 0;
+	I2C2->CR2 |= I2C_CR2_AUTOEND;	// Automatic STOP mode (Send a STOP when all bytes have been transmitted)
+
+	I2C2->CR2 &= ~I2C_CR2_ADD10;
+	I2C2->CR2 &= ~I2C_CR2_SADD;
+	I2C2->CR2 |= (SLAVE_ADDRESS << 1);	// Store the slave address
+
+	// Mode de lecture
+	I2C2->CR2 |= I2C_CR2_RD_WRN;
+
+	// Nombre d'octet
+	I2C2->CR2 &= ~I2C_CR2_NBYTES;
+	I2C2->CR2 |= (nb_data << 16);
+
+	// Send start
+	I2C2->CR2 |= I2C_CR2_START;
+
+	// Wait for ACK from the slave (ACK after START + ADDRESS received)
+	while(!(I2C2->ISR & I2C_ISR_TXIS) && !(I2C2->ISR & I2C_ISR_NACKF));
+
+	if(I2C2->ISR & I2C_ISR_NACKF)
+	{
+		I2C2->ISR &= ~ I2C_ISR_NACKF;
+		return -1; // Signaler erreur NACK
+	}
+
+	for(i=0;i< nb_data; i++)
+	{
+		while(!(I2C2->ISR & I2C_ISR_RXNE));
+		data[i] = I2C2->RXDR;	// Lire le buffer I2C de reception
+	}
+	return 0;
+}

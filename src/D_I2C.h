@@ -19,7 +19,7 @@
 
 void F_init_I2C(void);
 void F_soft_reset_I2C(void);
-uint8_t F_transmit_to_slave(uint8_t rw_direction, uint8_t nb_data, uint8_t *data);
-
+uint8_t F_transmit_to_slave(uint8_t nb_data, uint8_t *data);
+uint8_t F_receive_from_slave(uint8_t nb_data, uint8_t *data);
 
 #endif /* D_I2C_H_ */

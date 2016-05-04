@@ -25,6 +25,6 @@ typedef enum
 
 
 void F_init_capteur_ultrasons(void);
-uint16_t F_generer_trig(E_TRIG trigger);
+int16_t F_generer_trig(E_TRIG trigger);
 
 #endif /* L_CAPTEUR_ULTRASON_H_ */

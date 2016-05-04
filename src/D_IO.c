@@ -23,16 +23,11 @@ void F_init_IO(void)
 	GPIOA->MODER |= 0x01 << 16;	// PA8 as output
 	GPIOA->ODR &= ~(0x01 << 8);	// low state
 
-
 	// Initialiser Entrees : Microrupteur haut / bas + cordon demarrage
 	// PA0 : microswitch haut
 	// PA1 : microswitch bas
-	// PA5 : Cordon demarrage
+	// PA5 : interrupteur selection couleur
 	GPIOA->MODER &= ~(GPIO_MODER_MODER0 | GPIO_MODER_MODER1 | GPIO_MODER_MODER5); // Input
-
-
-
-
 
 	/* IO PORT B */
 	// Initialize the LEDs (PORT B)
@@ -51,15 +46,15 @@ void F_init_IO(void)
 	GPIOB->MODER &=~(0x03 << 8);	// Input for pin PB4
 	GPIOB->MODER &=~(0x03 << 10);	// Input for pin PB5
 
-
 	// PB 13 : Capteur arriere
-
 	GPIOB->MODER &= ~ (0x3 << 26);
 	GPIOB->PUPDR &= ~ (0x03 << 26);
 	GPIOB->PUPDR |= 0x01 << 26; 	// Pull-up
 
-
-
+	// PB14 : Cordon de démarrage
+	GPIOB->MODER &= ~(0x03 << 28);
+	GPIOB->PUPDR &= ~(0x03 << 28);
+	GPIOB->PUPDR |= 0x01 << 28;		// Pull-up
 
 }
 
