@@ -63,7 +63,7 @@ uint16_t timer_1s;
 uint8_t recuperer_ultrason;
 
 /* Liste des points */
-S_point liste_points[] = {{.x = 0, .y = 0, .theta = 0},
+S_point liste_points_violet[] = {{.x = 0, .y = 0, .theta = 0},
 							{.x = 650, .y = 900, .theta = 0},
 							{.x = 700, .y = 1000, .theta = 0},
 							{.x = 1100, .y = 1100, .theta = 0},
@@ -81,6 +81,24 @@ S_point liste_points[] = {{.x = 0, .y = 0, .theta = 0},
 							{.x = 0, .y = 0, .theta = 0}
 };
 
+
+S_point liste_points_vert[] = {{.x = 0, .y = 0, .theta = 0},
+							{.x = 650, .y = 900, .theta = 0},
+							{.x = 700, .y = 1000, .theta = 0},
+							{.x = 1100, .y = 1100, .theta = 0},
+							{.x = 1250, .y = 950, .theta = 0},
+							{.x = 1300, .y = 1300, .theta = 0},
+							{.x = 1500, .y = 1550, .theta = 0},
+							{.x = 1500, .y = 1850, .theta = 0},
+							{.x = 1200, .y = 1650, .theta = 0},
+							{.x = 900, .y = 1450, .theta = 0},
+							{.x = 700, .y = 1550, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0},
+							{.x = 0, .y = 0, .theta = 0}
+};
 
 
 // Executer la commande contenu dans le buffer
