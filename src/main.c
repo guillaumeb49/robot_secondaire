@@ -112,11 +112,11 @@ uint8_t F_Recevoir_donnees_I2C(uint8_t nb_data, uint8_t *donnees);
 int main()
 {
 	/* Variables */
-	int16_t distance_obstacle_droit	= 0;
-	int16_t distance_obstacle_gauche= 0;
+	int16_t distance_obstacle_droit	= 50;
+	int16_t distance_obstacle_gauche= 50;
 	E_TRIG trigger_ultrason 	= TRIG_DROIT;
 	recuperer_ultrason 			= 0;
-	uint8_t flag_stop			= 0;
+	uint8_t flag_stop			= 1;
 
 	S_point *liste_points 		= NULL;
 	S_commande cmd;
@@ -197,7 +197,7 @@ int main()
 			// Envoyer un signal a la carte moteur pour s'arreter
 			if((distance_obstacle_droit <= 20) || (distance_obstacle_gauche <= 20))
 			{
-				if(flag_stop == 1)
+				if(flag_stop == 0)
 				{
 					LED_GREEN_ON();
 					// allumer LED Rouge
@@ -239,7 +239,7 @@ int main()
 
 
 		// Demander si bien arrive au point demande
-		if(	demande_I2C == 1)
+	/*	if(	demande_I2C == 1)
 		{
 			F_Recevoir_donnees_I2C(1, &etat_carte_moteur);
 
@@ -297,7 +297,7 @@ int main()
 			demande_I2C = 0;
 		}
 
-
+*/
 
 
 

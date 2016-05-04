@@ -181,9 +181,9 @@ int16_t F_generer_trig(E_TRIG trigger)
 		longueur = (t2 - t1)/58;
 	}
 
-	printf("Longueur %d: %d cm "
+	/*printf("Longueur %d: %d cm "
 			"\r\n", (int)trigger,(int)(longueur));
-
+*/
 
 	return (int16_t)longueur;
 }

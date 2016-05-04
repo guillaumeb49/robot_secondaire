@@ -97,6 +97,7 @@ void F_soft_reset_I2C(void)
  */
 uint8_t F_transmit_to_slave(uint8_t nb_data, uint8_t *data)
 {
+	volatile int test = 0;
 	int i = 0;
 	I2C2->CR2 |= I2C_CR2_AUTOEND;	// Automatic STOP mode (Send a STOP when all bytes have been transmitted)
 
@@ -109,26 +110,30 @@ uint8_t F_transmit_to_slave(uint8_t nb_data, uint8_t *data)
 	I2C2->CR2 &= ~I2C_CR2_NBYTES;
 	I2C2->CR2 |= (nb_data << 16);
 
+
 	// Send start
 	I2C2->CR2 |= I2C_CR2_START;
 
 	// Wait for ACK from the slave (ACK after START + ADDRESS received)
-	while(!(I2C2->ISR & I2C_ISR_TXIS) && !(I2C2->ISR & I2C_ISR_NACKF));
+	while((!(I2C2->ISR & I2C_ISR_TXIS)) && (!(I2C2->ISR & I2C_ISR_NACKF)));
 
 	if(I2C2->ISR & I2C_ISR_NACKF)
 	{
-		I2C2->ISR &= ~ I2C_ISR_NACKF;
+		I2C2->ICR |= I2C_ISR_NACKF;
 		return -1; // Signaler erreur NACK
 	}
 
 	for(i=0;i< nb_data; i++)
 	{
 		I2C2->TXDR = data[i];
-		while(!(I2C2->ISR & I2C_ISR_TXIS)&& !(I2C2->ISR & I2C_ISR_NACKF));	// attendre ACK ou NACK
+		while((!(I2C2->ISR & I2C_ISR_TXIS)) && (!(I2C2->ISR & I2C_ISR_STOPF)))
+		{
+			test = (int)I2C2->ISR;// && (!(I2C2->ISR & I2C_ISR_NACKF)));	// attendre ACK ou NACK
+		}
 
 		if(I2C2->ISR & I2C_ISR_NACKF)
 		{
-			I2C2->ISR &= ~ I2C_ISR_NACKF;
+			I2C2->ICR |= I2C_ISR_NACKF;
 			return -1; // Signaler erreur NACK
 		}
 	}
@@ -155,7 +160,7 @@ uint8_t F_receive_from_slave(uint8_t nb_data, uint8_t *data)
 	I2C2->CR2 |= I2C_CR2_START;
 
 	// Wait for ACK from the slave (ACK after START + ADDRESS received)
-	while(!(I2C2->ISR & I2C_ISR_TXIS) && !(I2C2->ISR & I2C_ISR_NACKF));
+	while((!(I2C2->ISR & I2C_ISR_TXIS)) && (!(I2C2->ISR & I2C_ISR_NACKF)));
 
 	if(I2C2->ISR & I2C_ISR_NACKF)
 	{
