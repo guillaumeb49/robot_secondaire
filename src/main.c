@@ -104,10 +104,11 @@ S_point liste_points_vert[] = {{.x = 0, .y = 0, .theta = 0},
 };
 
 
-uint8_t F_Envoyer_commande(S_commande cmd);
 uint8_t F_Recevoir_donnees_I2C(uint8_t nb_data, uint8_t *donnees);
 
+S_commande cmd;
 
+E_SERVO_POSITION pos 		= SERVO_0deg;
 
 int main()
 {
@@ -117,9 +118,10 @@ int main()
 	E_TRIG trigger_ultrason 	= TRIG_DROIT;
 	recuperer_ultrason 			= 0;
 	uint8_t flag_stop			= 1;
+	uint8_t compteur_i2c		= 0;
 
 	S_point *liste_points 		= NULL;
-	S_commande cmd;
+
 	uint16_t index_point		= 0;
 
 	E_SERVO_POSITION pos 		= SERVO_0deg;
@@ -127,6 +129,9 @@ int main()
 
 	demande_I2C 				= 0;
 	uint8_t etat_carte_moteur 	= 0;
+
+	pos 		= SERVO_0deg;
+
 
 	/*************/
 
@@ -162,19 +167,37 @@ int main()
 	F_move_servo3(pos);
 
 	// Attendre que la prise jack soit retiree
-	// While(!(GPIOB->IDR & GPIOA_IDR14));
+	while(!(GPIOB->IDR & GPIO_IDR_14));
+
+	// Enable Timer 2
+	TIM2->CR1 |= TIM_CR1_CEN;
+
 
 	// Recuperer la couleur du match
 	if(GPIOA->IDR & GPIO_IDR_5)
 	{
 		liste_points = &liste_points_vert[0];
 		couleur = COULEUR_VERT;
+		cmd.commande = CMD_COULEUR;
+		cmd.param1 = 1;
+		cmd.param2 = 0;
+		cmd.param3 = 0;
+
 	}
 	else
 	{
 		liste_points = &liste_points_violet[0];
 		couleur = COULEUR_VERT;
+		cmd.commande = CMD_COULEUR;
+		cmd.param1 = 0;
+		cmd.param2 = 0;
+		cmd.param3 = 0;
 	}
+
+	// Envoyer la commande couleur
+	F_Envoyer_commande(cmd);
+
+
 
 	while(1)
 	{
@@ -186,11 +209,19 @@ int main()
 			if(trigger_ultrason == TRIG_DROIT)
 			{
 				distance_obstacle_droit = F_generer_trig(trigger_ultrason);
+				if(distance_obstacle_droit == 0)
+				{
+					distance_obstacle_droit = F_generer_trig(trigger_ultrason);
+				}
 				trigger_ultrason = TRIG_GAUCHE;
 			}
 			else
 			{
 				distance_obstacle_gauche = F_generer_trig(trigger_ultrason);
+				if(distance_obstacle_gauche == 0)
+				{
+					distance_obstacle_gauche = F_generer_trig(trigger_ultrason);
+				}
 				trigger_ultrason = TRIG_DROIT;
 			}
 
@@ -207,10 +238,15 @@ int main()
 					cmd.param3 = 0;
 					F_Envoyer_commande(cmd);	// Arreter le robot
 
-					flag_stop = 1;
+					if(compteur_i2c >=1)
+					{
+						flag_stop 		= 1;
+						compteur_i2c 	= 0;
+					}
+					compteur_i2c++;
 				}
 			}
-			else
+			else if((distance_obstacle_droit > 20) && (distance_obstacle_gauche > 20))
 			{
 				if(flag_stop == 1)
 				{
@@ -221,22 +257,35 @@ int main()
 					cmd.param2 = 0;
 					cmd.param3 = 0;
 					F_Envoyer_commande(cmd);	// Faire repartir le robot
-					flag_stop = 0;
+
+					if(compteur_i2c >=1)
+					{
+						flag_stop 		= 0;
+						compteur_i2c	= 0;
+					}
+					compteur_i2c++;
+
 				}
 			}
 		}
 
-
 		// Si temps de realiser la Funny Action
 		if(timer_1s >= 90)
 		{
-			LED_GREEN_ON();
+			LED_RED_ON();
+
+			// allumer LED Rouge
+			cmd.commande = CMD_START_STOP;
+			cmd.param1 = 0;
+			cmd.param2 = 0;
+			cmd.param3 = 0;
+			F_Envoyer_commande(cmd);	// Arreter le robot
 
 			// Ouvrir parasol
 			pos = SERVO_90deg;
 			F_move_servo3(pos);
+			while(1);
 		}
-
 
 		// Demander si bien arrive au point demande
 	/*	if(	demande_I2C == 1)

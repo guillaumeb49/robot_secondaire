@@ -56,7 +56,9 @@ typedef struct{
 typedef enum{
 	CMD_GOTO 		= 1,
 	CMD_RECULER 	= 2,
-	CMD_START_STOP 	= 3
+	CMD_START_STOP 	= 3,
+	CMD_COULEUR 	= 4
+
 }E_CMD;
 
 typedef enum{
@@ -74,6 +76,16 @@ typedef struct{
 	uint16_t param2;
 	uint8_t param3;
 }S_commande;
+
+typedef enum{
+	SERVO_0deg,
+	SERVO_90deg,
+	SERVO_120deg,
+	SERVO_180deg
+
+}E_SERVO_POSITION;
+
+
 
 // Timer 100 us
 extern uint8_t timer_100us;
@@ -102,5 +114,11 @@ extern uint8_t timeout_i2c;
 // Flag Demande I2C
 extern uint8_t demande_I2C;
 
+extern S_commande cmd;
+
+extern E_SERVO_POSITION pos;
+
+
+extern uint8_t F_Envoyer_commande(S_commande cmd);
 
 #endif /* COMMON_H_ */

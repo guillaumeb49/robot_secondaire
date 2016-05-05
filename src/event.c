@@ -81,6 +81,22 @@ void TIM2_IRQHandler(void)
 			// Faire clignoter LED Orange toutes les secondes
 			LED_ORANGE_TOGGLE();
 		}
+
+
+		if(timer_1s >= 90)
+		{
+			// allumer LED Rouge
+			cmd.commande = CMD_START_STOP;
+			cmd.param1 = 0;
+			cmd.param2 = 0;
+			cmd.param3 = 0;
+			F_Envoyer_commande(cmd);	// Arreter le robot
+
+			// Ouvrir parasol
+			pos = SERVO_90deg;
+			F_move_servo3(pos);
+		}
+
 	}
 }
 

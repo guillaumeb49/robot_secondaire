@@ -35,8 +35,6 @@ void F_Init_Timer(void)
 	// Enable TIM2 interrupt
 	NVIC_EnableIRQ(TIM2_IRQn);
 
-	// Enable Timer 2
-	TIM2->CR1 |= TIM_CR1_CEN;
 
 	/*************************/
 	/* Init Timer 17 : PWM Servo 3 */

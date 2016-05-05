@@ -12,13 +12,6 @@
 
 
 
-typedef enum{
-	SERVO_0deg,
-	SERVO_90deg,
-	SERVO_120deg,
-	SERVO_180deg
-
-}E_SERVO_POSITION;
 
 
 void F_move_servo1(E_SERVO_POSITION pos);
